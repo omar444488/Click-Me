@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dynamic Button with Firework Confetti</title>
+<style>
+  body {
+    background-color: lightblue;
+    transition: background-color 0.3s ease;
+  }
+
+  #dynamicButton {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 10px 20px;
+    background-color: green;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease, transform 0.3s ease;
+  }
+
+  #dynamicButton:active {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transform: translate(-50%, -50%) scale(1.2) rotate(10deg);
+  }
+
+  #counters {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    z-index: 10;
+  }
+
+  .confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: red;
+    animation: confetti-fall 1s linear forwards;
+    opacity: 0;
+  }
+
+  @keyframes confetti-fall {
+    0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+    100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+  }
+</style>
+</head>
+<body>
+
+<div id="counters">
+  <div id="clickCounter">Clicks: 0</div>
+  <div id="timeCounter">Time: 0s</div>
+</div>
+<button id="dynamicButton" onclick="changeButton()">Click me!</button>
+
+<script>
+  var clickCount = 0;
+  var startTime;
+  var timeInterval;
+
+  function createConfetti(x, y) {
+    var confettiColors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+    for (var i = 0; i < 100; i++) {
+      var confetti = document.createElement('div');
+      confetti.className = 'confetti';
+      confetti.style.backgroundColor = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+      confetti.style.left = x + 'px';
+      confetti.style.top = y + 'px';
+      var angle = Math.random() * 360;
+      var distance = Math.random() * 100 + 50;
+      confetti.style.transform = 'rotate(' + angle + 'deg) translate(' + distance + 'px)';
+      document.body.appendChild(confetti);
+
+      setTimeout(() => {
+        document.body.removeChild(confetti);
+      }, 2000);
+    }
+  }
+
+  function changeButton() {
+    var button = document.getElementById('dynamicButton');
+    var clickCounter = document.getElementById('clickCounter');
+    var timeCounter = document.getElementById('timeCounter');
+    var randomColor = '#' + Math.floor(Math.random() * 16777215).toString(16);
+    var maxX = window.innerWidth - button.clientWidth;
+    var maxY = window.innerHeight - button.clientHeight;
+
+    // Ensure button doesn't overlap with counter
+    var randomX, randomY;
+    do {
+      randomX = Math.floor(Math.random() * maxX);
+      randomY = Math.floor(Math.random() * maxY);
+    } while (randomX < clickCounter.offsetWidth + 50 && randomY < clickCounter.offsetHeight + 50);
+
+    button.style.backgroundColor = randomColor;
+    button.style.color = randomColor === '#ffffff' ? 'black' : 'white'; // Ensures readability
+    button.style.left = randomX + 'px';
+    button.style.top = randomY + 'px';
+    document.body.style.backgroundColor = randomColor;
+
+    clickCount++;
+    clickCounter.innerText = 'Clicks: ' + clickCount;
+    createConfetti(button.offsetLeft + button.clientWidth / 2, button.offsetTop + button.clientHeight / 2);
+
+    if (!startTime) {
+      startTime = new Date();
+      timeInterval = setInterval(() => {
+        var elapsedTime = Math.floor((new Date() - startTime) / 1000);
+        timeCounter.innerText = 'Time: ' + elapsedTime + 's';
+      }, 1000);
+    }
+  }
+</script>
+
+</body>
+</html>
